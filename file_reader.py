@@ -5,7 +5,7 @@ class FileReader:
 
     def __init__(self):
 
-        self.file_path = r"C:\Users\sumed\OneDrive\Documents\weather_monitoring\dummy.json"
+        self.file_path = r"C:\Users\sumed\OneDrive\Documents\weather_monitoring\dummy_sensor_data.json"
 
 
     def read(self):
