@@ -1,13 +1,15 @@
 import socket
-import sensor_reader
 import json
-class WiFiReader(sensor_reader.SensorReader):
+from sensor_reader import SensorReader
 
-    def __init__(self):
+
+class WiFiReader(SensorReader):
+
+    def __init__(self, ip="localhost", port=5000):
 
         self.sock = None
-        self.ip = "192.168.1.10"
-        self.port = 8080
+        self.ip = ip
+        self.port = port
 
     def connect(self):
 
@@ -22,10 +24,29 @@ class WiFiReader(sensor_reader.SensorReader):
 
     def read(self):
 
-        raw_data = self.sock.recv(1024)
-        decoded_data = raw_data.decode()
-        sensor_data = json.loads(decoded_data)
-        return sensor_data
+        self.sock.send("GET_WEATHER".encode())
+
+        sensor_readings = {}
+        buffer = ""
+
+        while True:
+            chunk = self.sock.recv(1024)
+
+            if not chunk:
+                break
+
+            buffer += chunk.decode()
+
+            while "\n" in buffer:
+                line, buffer = buffer.split("\n", 1)
+
+                if not line:
+                    continue
+
+                reading = json.loads(line)
+                sensor_readings.update(reading)
+
+        return sensor_readings
 
     def disconnect(self):
 

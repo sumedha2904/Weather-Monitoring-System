@@ -1,5 +1,5 @@
-from sensor_reader import FileReader
-from sensor_data_parsing import SensorDataParser
+from file_reader import FileReader
+from sensor_data_parsing import JSONParser
 from sensor_data_logger import DataLogger
 
 
@@ -8,13 +8,17 @@ class SensorApplication:
     def __init__(self):
 
         self.reader = FileReader()
-        self.sensor_data_parser = SensorDataParser()
+        self.sensor_data_parser = JSONParser()
         self.logger = DataLogger()
 
 
     def run(self):
 
+        self.reader.connect()
+
         raw_data = self.reader.read()
+
+        self.reader.disconnect()
 
         sensor_readings = self.sensor_data_parser.parse(raw_data)
 

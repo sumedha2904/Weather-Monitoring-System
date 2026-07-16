@@ -1,16 +1,15 @@
-import csv
-import json
+from abc import ABC, abstractmethod
 
-class FileReader:
+class SensorReader(ABC):
 
-    def __init__(self):
-        self.file_path = r"C:\Users\sumed\OneDrive\Documents\new 1.json"
+    @abstractmethod
+    def connect(self):
+        pass
 
+    @abstractmethod
     def read(self):
+        pass
 
-        raw_data = {}
-
-        with open(self.file_path, "r") as file:
-            raw_data = json.load(file)
-
-        return raw_data
+    @abstractmethod
+    def disconnect(self):
+        pass
