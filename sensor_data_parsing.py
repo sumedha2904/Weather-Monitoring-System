@@ -1,21 +1,16 @@
 from abc import ABC, abstractmethod
 from sensor_data import SensorData
-import json
 
 
 class SensorDataParser(ABC):
 
     def validate(self, reading):
-
-        for parameter, value in reading.items():
-
-            if value is None or value == "":
-                print(parameter, "has no value")
-
+        if not reading:
+            print("No sensor data received")
         return reading
 
     def create_sensor_object(self, reading):
-        return SensorData(**reading)
+        return SensorData(reading)
 
     @abstractmethod
     def parse(self, data):

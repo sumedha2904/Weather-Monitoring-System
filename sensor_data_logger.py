@@ -1,40 +1,26 @@
-import csv
-import json
+import os
+
 
 class DataLogger:
 
     def __init__(self):
+
         self.csv_path = "logger.csv"
         self.json_path = "logger.json"
 
-    def store_csv(self, sensor_readings):
+    def store_csv(self, sensor):
 
-        if not sensor_readings:
-            print("No data available")
-            return
+        file_exists = os.path.exists(self.csv_path)
 
-        headers = []
+        with open(self.csv_path, "a") as file:
 
-        # collect sensor fields
-        for sensor in sensor_readings.values():
-            for key in sensor.__dict__.keys():
-                if key not in headers:
-                    headers.append(key)
+            if not file_exists:
+                file.write("Reading\n")
 
-        with open(self.csv_path, "w", newline="") as file:
+            file.write(sensor.raw_data + "\n")
 
-            writer = csv.DictWriter(file, fieldnames=headers)
+    def store_json(self, sensor):
 
-            writer.writeheader()
+        with open(self.json_path, "a") as file:
 
-            for sensor in sensor_readings.values():
-                writer.writerow(sensor.__dict__)
-
-    def store_json(self, sensor_readings):
-        data = {}
-
-        for reading_id, sensor in sensor_readings.items():
-            data[reading_id] = sensor.__dict__
-
-        with open(self.json_path, "w") as file:
-            json.dump(data, file, indent=4)
+            file.write(sensor.raw_data + "\n")

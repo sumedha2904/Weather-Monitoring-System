@@ -3,8 +3,6 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer
 from wifi_reader import WiFiReader
 from sensor_data_logger import DataLogger
 
-import json
-
 
 class SensorApplication(QObject):
 
@@ -52,10 +50,7 @@ class SensorApplication(QObject):
         self.logger.store_csv(sensor)
         self.logger.store_json(sensor)
 
-        # Send reading to QML
-        self.reading_received.emit(
-            json.dumps(sensor.__dict__)
-        )
+        self.reading_received.emit(sensor.raw_data)
 
     @pyqtSlot()
     def disconnect_from_esp32(self):
