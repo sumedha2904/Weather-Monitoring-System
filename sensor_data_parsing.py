@@ -1,28 +1,21 @@
 from abc import ABC, abstractmethod
 from sensor_data import SensorData
-from sensor_schema import SCHEMA
+import json
 
 
 class SensorDataParser(ABC):
 
     def validate(self, reading):
 
-        for sensor_name, parameters in SCHEMA.items():
-            for parameter in parameters:
-                if parameter not in reading:
-                    print(parameter, "missing")
-                    reading[parameter] = ""
+        for parameter, value in reading.items():
 
-                elif reading[parameter] is None:
-                    print(parameter, "is null")
-                    reading[parameter] = ""
+            if value is None or value == "":
+                print(parameter, "has no value")
 
         return reading
 
     def create_sensor_object(self, reading):
-
-        sensor = SensorData(**reading)
-        return sensor
+        return SensorData(**reading)
 
     @abstractmethod
     def parse(self, data):
@@ -31,11 +24,8 @@ class SensorDataParser(ABC):
 
 class JSONParser(SensorDataParser):
 
-    def parse(self, data):
-        sensor_readings = {}
-        for reading_id, reading in data.items():
-            reading = self.validate(reading)
-            sensor = self.create_sensor_object(reading)
-            sensor_readings[reading_id] = sensor
-
-        return sensor_readings
+    def parse(self, raw_data):
+        raw_data = json.loads(raw_data)
+        raw_data = self.validate(raw_data)
+        sensor = self.create_sensor_object(raw_data)
+        return sensor

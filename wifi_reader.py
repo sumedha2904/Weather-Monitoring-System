@@ -1,15 +1,21 @@
 import socket
-import json
+
 from sensor_reader import SensorReader
+from sensor_data_parsing import JSONParser
 
 
 class WiFiReader(SensorReader):
 
-    def __init__(self, ip="localhost", port=5000):
+    def __init__(self, ip="YOUR_IP", port=5000):
 
-        self.sock = None
         self.ip = ip
         self.port = port
+
+        self.sock = None
+        self.buffer = ""
+
+        # Create JSONParser instance
+        self.parser = JSONParser()
 
     def connect(self):
 
@@ -18,36 +24,37 @@ class WiFiReader(SensorReader):
             socket.SOCK_STREAM
         )
 
-        self.sock.connect(
-            (self.ip, self.port)
-        )
+        self.sock.connect((self.ip, self.port))
+
+        print("Connected to ESP32")
 
     def read(self):
 
-        self.sock.send("GET_WEATHER".encode())
-
-        sensor_readings = {}
-        buffer = ""
-
         while True:
+
             chunk = self.sock.recv(1024)
 
             if not chunk:
-                break
+                return None
 
-            buffer += chunk.decode()
+            # Received bytes → string
+            self.buffer += chunk.decode()
 
-            while "\n" in buffer:
-                line, buffer = buffer.split("\n", 1)
+            if "\n" in self.buffer:
+
+                line, self.buffer = self.buffer.split("\n", 1)
 
                 if not line:
                     continue
 
-                reading = json.loads(line)
-                sensor_readings.update(reading)
-
-        return sensor_readings
+                # Send JSON string to JSONParser
+                return self.parser.parse(line)
 
     def disconnect(self):
 
-        self.sock.close()
+        if self.sock:
+
+            self.sock.close()
+            self.sock = None
+
+        print("Disconnected from ESP32")

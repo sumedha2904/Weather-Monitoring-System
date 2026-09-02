@@ -1,31 +1,67 @@
-from file_reader import FileReader
-from sensor_data_parsing import JSONParser
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer
+
+from wifi_reader import WiFiReader
 from sensor_data_logger import DataLogger
 
+import json
 
-class SensorApplication:
+
+class SensorApplication(QObject):
+
+    reading_received = pyqtSignal(str)
 
     def __init__(self):
 
-        self.reader = FileReader()
-        self.sensor_data_parser = JSONParser()
+        super().__init__()
+
+        self.reader = WiFiReader(
+            ip="YOUR_IP",
+            port=5000
+        )
+
         self.logger = DataLogger()
 
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.read_data)
 
-    def run(self):
+        self.running = False
+
+    @pyqtSlot()
+    def connect_to_esp32(self):
 
         self.reader.connect()
 
-        raw_data = self.reader.read()
+        self.running = True
+
+        self.timer.start(1)
+
+    def read_data(self):
+
+        if not self.running:
+            return
+
+        # WiFiReader returns SensorData object
+        sensor = self.reader.read()
+
+        if sensor is None:
+
+            self.disconnect_from_esp32()
+            return
+
+        # Store reading
+        self.logger.store_csv(sensor)
+        self.logger.store_json(sensor)
+
+        # Send reading to QML
+        self.reading_received.emit(
+            json.dumps(sensor.__dict__)
+        )
+
+    @pyqtSlot()
+    def disconnect_from_esp32(self):
+
+        self.running = False
+
+        self.timer.stop()
 
         self.reader.disconnect()
-
-        sensor_readings = self.sensor_data_parser.parse(raw_data)
-
-        for reading_id, sensor in sensor_readings.items():
-
-            print(reading_id)
-            sensor.display()
-
-        self.logger.store_csv(sensor_readings)
-        self.logger.store_json(sensor_readings)
