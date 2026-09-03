@@ -2,7 +2,7 @@ from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot, QTimer
 
 from wifi_reader import WiFiReader
 from sensor_data_logger import DataLogger
-
+from sensor_data_parsing import JSONParser
 
 class SensorApplication(QObject):
 
@@ -11,8 +11,10 @@ class SensorApplication(QObject):
     def __init__(self):
 
         super().__init__()
+        self.parser = JSONParser()
 
         self.reader = WiFiReader(
+            self.parser,
             ip="YOUR_IP",
             port=5000
         )
