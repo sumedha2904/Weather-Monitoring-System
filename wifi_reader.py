@@ -6,7 +6,7 @@ from sensor_data_parsing import JSONParser
 
 class WiFiReader(SensorReader):
 
-    def __init__(self, ip="YOUR_IP", port=5000):
+    def __init__(self, parser, ip="YOUR_IP", port=5000):
 
         self.ip = ip
         self.port = port
@@ -14,8 +14,7 @@ class WiFiReader(SensorReader):
         self.sock = None
         self.buffer = ""
 
-        # Create JSONParser instance
-        self.parser = JSONParser()
+        self.parser = parser
 
     def connect(self):
 
@@ -47,7 +46,6 @@ class WiFiReader(SensorReader):
                 if not line:
                     continue
 
-                # Send JSON string to JSONParser
                 return self.parser.parse(line)
 
     def disconnect(self):
