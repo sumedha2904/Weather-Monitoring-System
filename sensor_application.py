@@ -40,7 +40,6 @@ class SensorApplication(QObject):
         if not self.running:
             return
 
-        # WiFiReader returns SensorData object
         sensor = self.reader.read()
 
         if sensor is None:
