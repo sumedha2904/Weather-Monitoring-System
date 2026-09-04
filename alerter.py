@@ -1,43 +1,32 @@
-import re
-
 import sensor_thresholds
+
 
 class Alerter:
 
     def check(self, sensor):
+
         raw_data = sensor.raw_data
-        alerts = []
 
-        temperature = re.search(r'"Temperature"\s*\s*(-?:\.\d+)', raw_data)
-        pressure = re.search(r'"Pressure"\s*\s*(-?:\.\d+)', raw_data)
-        humidity = re.search(r'"Humidity"\s*\s*(-?:\.\d+)', raw_data)
+        temperature = float(raw_data.split('"Temperature":')[1].split(',')[0])
 
-        if temperature:
-            temperature = float(temperature.group(1))
+        humidity = float(raw_data.split('"Humidity":')[1].split(',')[0])
 
-            if temperature < TEMPERATURE_LOW:
-                alerts.append("Temperature is critically low")
+        pressure = float(raw_data.split('"Pressure":')[1].split('}')[0])
 
-            elif temperature > TEMPERATURE_HIGH:
-                alerts.append("Temperature is critically high")
+        if temperature < sensor_thresholds.TEMPERATURE_LOW:
+            print("ALERT: Temperature is critically low")
 
-        if humidity:
-            humidity = float(humidity.group(1))
+        elif temperature > sensor_thresholds.TEMPERATURE_HIGH:
+            print("ALERT: Temperature is critically high")
 
-            if humidity < HUMIDITY_LOW:
-                alerts.append("Humidity is critically low")
+        if humidity < sensor_thresholds.HUMIDITY_LOW:
+            print("ALERT: Humidity is critically low")
 
-            elif humidity > HUMIDITY_HIGH:
-                alerts.append("Humidity is critically high")
+        elif humidity > sensor_thresholds.HUMIDITY_HIGH:
+            print("ALERT: Humidity is critically high")
 
-        if pressure:
-            pressure = float(pressure.group(1))
+        if pressure < sensor_thresholds.PRESSURE_LOW:
+            print("ALERT: Pressure is critically low")
 
-            if pressure < PRESSURE_LOW:
-                alerts.append("Pressure is critically low")
-
-            elif pressure > PRESSURE_HIGH:
-                alerts.append("Pressure is critically high")
-
-        return alerts
-
+        elif pressure > sensor_thresholds.PRESSURE_HIGH:
+            print("ALERT: Pressure is critically high")
