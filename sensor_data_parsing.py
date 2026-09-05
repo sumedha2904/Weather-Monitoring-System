@@ -1,25 +1,17 @@
-from abc import ABC, abstractmethod
 from sensor_data import SensorData
 
 
-class SensorDataParser(ABC):
-
-    def validate(self, reading):
-        if not reading:
-            print("No sensor data received")
-        return reading
-
-    def create_sensor_object(self, reading):
-        return SensorData(reading)
-
-    @abstractmethod
-    def parse(self, data):
-        pass
-
-
-class JSONParser(SensorDataParser):
-
+class SensorDataParser:
     def parse(self, raw_data):
-        raw_data = self.validate(raw_data)
-        sensor = self.create_sensor_object(raw_data)
+
+        temperature = float(raw_data.split('"bme_temperature":')[1].split(',')[0])
+        humidity = float(raw_data.split('"humidity":')[1].split(',')[0])
+        pressure = float(raw_data.split('"pressure":')[1].split(',')[0])
+
+        sensor = SensorData()
+
+        sensor.set_temperature(temperature)
+        sensor.set_pressure(pressure)
+        sensor.set_humidity(humidity)
+
         return sensor
